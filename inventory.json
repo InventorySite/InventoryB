@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Printer Paper",
+    "available": 20,
+    "image": ""
+  },
+  {
+    "name": "Stapler",
+    "available": 10,
+    "image": ""
+  },
+  {
+    "name": "Whiteboard Markers",
+    "available": 15,
+    "image": ""
+  }
+]

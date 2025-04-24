@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Mike Ross",
+    "item": "Printer Paper",
+    "quantity": 2,
+    "status": "Borrowed",
+    "dateBorrowed": "2024-04-01",
+    "dateReturned": ""
+  },
+  {
+    "name": "Rachel Zane",
+    "item": "Stapler",
+    "quantity": 1,
+    "status": "Returned",
+    "dateBorrowed": "2024-04-02",
+    "dateReturned": "2024-04-04"
+  }
+]

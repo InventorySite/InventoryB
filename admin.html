@@ -1,116 +1,138 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin - Edit Inventory</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stock Room Inventory</title>
+<link href="style.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
+        header h1 {
+            font-family: 'Roboto Slab', serif;
+            background-color: white;
+            color: #FF4136;
+            padding: 20px 40px;
+            border: 3px solid #FF4136;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        #clock {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+<style>
+        #transaction-container {
+            padding: 20px;
+        }
+
+        #transaction-container h2 {
+            text-align: center;
+            color: #FF4136;
+            margin-bottom: 20px;
+        }
+
+        #transaction-container .item {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin: 10px auto;
+            width: 240px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <div style="position: relative; height: 80px;">
-      <button id="theme-toggle" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);" title="Toggle Light/Dark Mode">🌙/🌞 Theme</button>
-      <h1 style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-50%); top: 50%;">Inventory Page</h1>
-      <div id="clock" class="gradient-clock" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">00:00:00</div>
-    </div>
-  </header>
+<header><div style="position: relative; height: 80px;"><button id="theme-toggle" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);" title="Toggle Light/Dark Mode">🌙/🌞 Theme</button><h1 style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-50%); top: 50%;">Inventory Page</h1><div class="gradient-clock" id="clock" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">00:00:00</div></div></header>
+<button class="collapsible">Stockroom Items</button>
+<form id="edit-form" style="max-width: 600px; margin: 20px auto;">
+<h3>Add/Edit Stockroom Item</h3>
+<input id="item-name" placeholder="Item Name" required="" type="text"/><br/>
+<input id="available" placeholder="Available Quantity" required="" type="number"/><br/>
+<input accept="image/*" id="item-image-file" type="file"/><br/>
+<button type="submit">Save Item</button>
+</form>
+<form id="edit-office-form" style="max-width: 600px; margin: 20px auto;">
+<h3>Add/Edit Office Resource</h3>
+<input id="office-name" placeholder="Resource Name" required="" type="text"/><br/>
+<input id="office-quantity" placeholder="Quantity" required="" type="number"/><br/>
+<button type="submit">Save Resource</button>
+</form>
+<div class="collapsible-content"><div id="items-container">
+<!-- List of items will appear here -->
+</div></div><button class="collapsible">Borrow History</button><div class="collapsible-content"><div id="transaction-container" style="margin: 0 auto; max-width: 800px; text-align: left;"></div></div><button class="collapsible">Office Resources</button><div class="collapsible-content"><div id="office-container"></div></div>
+<div id="qrcode" style="margin: 20px auto; text-align: center;"></div>
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script>
+        const qr = new QRious({
+            element: document.getElementById('qrcode'),
+            value: window.location.href,
+            size: 150
+        });
 
-  <div id="search-filter-bar" style="text-align: center; margin: 20px;">
-    <input type="text" id="search-input" placeholder="Search items..." style="padding: 10px; width: 200px; margin-right: 10px;">
-    <select id="filter-select" style="padding: 10px;">
-        <option value="all">All Items</option>
-        <option value="stockroom">Stockroom Items</option>
-        <option value="office">Office Resources</option>
-    </select>
-  </div>
+        function updateClock() {
+            const now = new Date();
+            const clock = document.getElementById('clock');
+            clock.textContent = now.toLocaleTimeString();
+        }
 
-  <button class="collapsible">Stockroom Items</button>
-  <div class="collapsible-content">
-    <form id="edit-form">
-      <label for="item-name">Item Name:</label>
-      <input type="text" id="item-name" required />
-      <label for="available">Available:</label>
-      <input type="number" id="available" required />
-      <label for="borrowed">Borrowed:</label>
-      <input type="number" id="borrowed" required />
-      <button type="submit">Save Item</button>
-    </form>
-    <div id="inventory-list"></div>
-  </div>
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+<script>
+document.querySelectorAll(".collapsible").forEach(btn => {
+    const content = btn.nextElementSibling;
+    content.style.display = "block"; // Open by default
 
-  <button class="collapsible">Borrow History</button>
-  <div class="collapsible-content">
-    <form id="borrow-form">
-      <label for="borrower-name">Name:</label>
-      <input type="text" id="borrower-name" required />
-      <label for="borrow-item">Item:</label>
-      <input type="text" id="borrow-item" required />
-      <label for="borrow-quantity">Quantity:</label>
-      <input type="number" id="borrow-quantity" required />
-      <label for="borrow-status">Status:</label>
-      <select id="borrow-status" required>
-        <option value="Borrowed">Borrowed</option>
-        <option value="Returned">Returned</option>
-      </select>
-      <label for="date-borrowed">Date Borrowed:</label>
-      <input type="date" id="date-borrowed" required />
-      <label for="date-returned">Date Returned (optional):</label>
-      <input type="date" id="date-returned" />
-      <button type="submit">Add Record</button>
-    </form>
-    <div id="transaction-list"></div>
-  </div>
-
-  <button class="collapsible">Office Resources</button>
-  <div class="collapsible-content">
-    <form id="office-form">
-      <label for="office-item-name">Resource Name:</label>
-      <input type="text" id="office-item-name" required />
-      <label for="office-quantity">Quantity:</label>
-      <input type="number" id="office-quantity" required />
-      <button type="submit">Save Resource</button>
-    </form>
-    <div id="office-list"></div>
-  </div>
-
-  <script src="admin.js"></script>
-  <script>
-    document.querySelectorAll(".collapsible").forEach(btn => {
-      const content = btn.nextElementSibling;
-      content.style.display = "block";
-      btn.addEventListener("click", function () {
+    btn.addEventListener("click", function () {
         this.classList.toggle("active");
         if (content.style.maxHeight) {
-          content.style.maxHeight = null;
-          content.style.opacity = 0;
+            content.style.maxHeight = null;
+            content.style.opacity = 0;
         } else {
-          content.style.maxHeight = content.scrollHeight + "px";
-          content.style.opacity = 1;
+            content.style.maxHeight = content.scrollHeight + "px";
+            content.style.opacity = 1;
         }
-      });
     });
-
-    function updateClock() {
-      const clock = document.getElementById('clock');
-      if (clock) {
+});
+</script>
+<script>
+function updateClock() {
+    const clock = document.getElementById('clock');
+    if (clock) {
         const now = new Date();
         clock.textContent = now.toLocaleTimeString();
-      }
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+<script>
+  const toggleBtn = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.body.classList.add(savedTheme + '-mode');
 
-    const toggleBtn = document.getElementById('theme-toggle');
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.body.classList.add(savedTheme + '-mode');
-    toggleBtn.addEventListener('click', () => {
-      const isDark = document.body.classList.contains('dark-mode');
-      document.body.classList.toggle('dark-mode', !isDark);
-      document.body.classList.toggle('light-mode', isDark);
-      localStorage.setItem('theme', isDark ? 'light' : 'dark');
-    });
-  </script>
-</body>
+  toggleBtn.addEventListener('click', () => {
+    const isDark = document.body.classList.contains('dark-mode');
+    document.body.classList.toggle('dark-mode', !isDark);
+    document.body.classList.toggle('light-mode', isDark);
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  });
+</script>
+<script src="admin.js"></script></body>
 </html>

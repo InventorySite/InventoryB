@@ -1,13 +1,12 @@
 
+let items = [];
+let officeResources = [];
+
 function getBorrowedCount(itemName) {
   return (transactions || []).filter(tran =>
     tran.item === itemName && tran.status === "Borrowed"
   ).reduce((sum, tran) => sum + Number(tran.quantity || 0), 0);
 }
-
-const items = JSON.parse(localStorage.getItem('inventory')) || [];
-const officeResources = JSON.parse(localStorage.getItem('officeResources')) || [];
-const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
 
 function displayItems() {
     const stockroomContainer = document.getElementById('items-container');
@@ -17,11 +16,11 @@ function displayItems() {
 
     items.forEach(item => {
         const div = document.createElement('div');
-        div.classList.add('item');
+        div.className = 'item';
         div.innerHTML = `
             ${item.image ? `<img src="${item.image}" class="item-image" alt="Item Image"/>` : ""}
             <h3>${item.name}</h3>
-            <p><strong>Available:</strong> ${item.available || item.quantity || 0}</p>
+            <p class="available"><strong>Available:</strong> ${item.available || item.quantity || 0}</p>
             <p class="borrowed"><strong>Borrowed:</strong> ${getBorrowedCount(item.name)}</p>
         `;
         stockroomContainer.appendChild(div);
@@ -29,10 +28,10 @@ function displayItems() {
 
     officeResources.forEach(resource => {
         const div = document.createElement('div');
-        div.classList.add('item');
+        div.className = 'item';
         div.innerHTML = `
             <h3>${resource.name}</h3>
-            <p><strong>Quantity:</strong> ${resource.quantity}</p>
+            <p class="available"><strong>Quantity:</strong> ${resource.quantity}</p>
         `;
         officeContainer.appendChild(div);
     });
@@ -65,6 +64,26 @@ function displayTransactions() {
 }
 
 window.onload = function () {
+  Promise.all([
+    fetch('inventory.json').then(res => res.json()),
+    fetch('office_resources.json').then(res => res.json()),
+    fetch('transactions.json').then(res => res.json())
+  ])
+  .then(([invData, officeData, tranData]) => {
+    items = invData;
+    officeResources = officeData;
+    localStorage.setItem('inventory', JSON.stringify(items));
+    localStorage.setItem('officeResources', JSON.stringify(officeResources));
     displayItems();
+    transactions = tranData;
+    localStorage.setItem('transactions', JSON.stringify(transactions));
     displayTransactions();
+  })
+  .catch(err => {
+    console.error('Error loading JSON files:', err);
+    displayItems();
+    transactions = tranData;
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+    displayTransactions();
+  });
 };
