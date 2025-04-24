@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Edit Inventory</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header>
+    <div style="position: relative; height: 80px;">
+      <button id="theme-toggle" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%);" title="Toggle Light/Dark Mode">🌙/🌞 Theme</button>
+      <h1 style="position: absolute; left: 50%; transform: translateX(-50%) translateY(-50%); top: 50%;">Inventory Page</h1>
+      <div id="clock" class="gradient-clock" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%);">00:00:00</div>
+    </div>
+  </header>
+
+  <div id="search-filter-bar" style="text-align: center; margin: 20px;">
+    <input type="text" id="search-input" placeholder="Search items..." style="padding: 10px; width: 200px; margin-right: 10px;">
+    <select id="filter-select" style="padding: 10px;">
+        <option value="all">All Items</option>
+        <option value="stockroom">Stockroom Items</option>
+        <option value="office">Office Resources</option>
+    </select>
+  </div>
+
+  <button class="collapsible">Stockroom Items</button>
+  <div class="collapsible-content">
+    <form id="edit-form">
+      <label for="item-name">Item Name:</label>
+      <input type="text" id="item-name" required />
+      <label for="available">Available:</label>
+      <input type="number" id="available" required />
+      <label for="borrowed">Borrowed:</label>
+      <input type="number" id="borrowed" required />
+      <button type="submit">Save Item</button>
+    </form>
+    <div id="inventory-list"></div>
+  </div>
+
+  <button class="collapsible">Borrow History</button>
+  <div class="collapsible-content">
+    <form id="borrow-form">
+      <label for="borrower-name">Name:</label>
+      <input type="text" id="borrower-name" required />
+      <label for="borrow-item">Item:</label>
+      <input type="text" id="borrow-item" required />
+      <label for="borrow-quantity">Quantity:</label>
+      <input type="number" id="borrow-quantity" required />
+      <label for="borrow-status">Status:</label>
+      <select id="borrow-status" required>
+        <option value="Borrowed">Borrowed</option>
+        <option value="Returned">Returned</option>
+      </select>
+      <label for="date-borrowed">Date Borrowed:</label>
+      <input type="date" id="date-borrowed" required />
+      <label for="date-returned">Date Returned (optional):</label>
+      <input type="date" id="date-returned" />
+      <button type="submit">Add Record</button>
+    </form>
+    <div id="transaction-list"></div>
+  </div>
+
+  <button class="collapsible">Office Resources</button>
+  <div class="collapsible-content">
+    <form id="office-form">
+      <label for="office-item-name">Resource Name:</label>
+      <input type="text" id="office-item-name" required />
+      <label for="office-quantity">Quantity:</label>
+      <input type="number" id="office-quantity" required />
+      <button type="submit">Save Resource</button>
+    </form>
+    <div id="office-list"></div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    document.querySelectorAll(".collapsible").forEach(btn => {
+      const content = btn.nextElementSibling;
+      content.style.display = "block";
+      btn.addEventListener("click", function () {
+        this.classList.toggle("active");
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null;
+          content.style.opacity = 0;
+        } else {
+          content.style.maxHeight = content.scrollHeight + "px";
+          content.style.opacity = 1;
+        }
+      });
+    });
+
+    function updateClock() {
+      const clock = document.getElementById('clock');
+      if (clock) {
+        const now = new Date();
+        clock.textContent = now.toLocaleTimeString();
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    const toggleBtn = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.add(savedTheme + '-mode');
+    toggleBtn.addEventListener('click', () => {
+      const isDark = document.body.classList.contains('dark-mode');
+      document.body.classList.toggle('dark-mode', !isDark);
+      document.body.classList.toggle('light-mode', isDark);
+      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    });
+  </script>
+</body>
+</html>
